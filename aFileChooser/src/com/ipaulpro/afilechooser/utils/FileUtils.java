@@ -441,7 +441,7 @@ public class FileUtils {
 
 	 * @author paulburke
 	 */
-	public static List<File> getFileList(String path) {
+	public static List<File> getFileList(String path, boolean aFolderBrowser ) {
 		ArrayList<File> list = new ArrayList<File>();
 
 		// Current directory File instance
@@ -455,6 +455,11 @@ public class FileUtils {
 			// Add each folder to the File list for the list adapter
 			for (File dir : dirs) list.add(dir);
 		}
+		
+		// if folders only
+		if( aFolderBrowser ) {
+			return list ;
+		}
 
 		// List file in this directory with the file filter
 		final File[] files = pathDir.listFiles(mFileFilter);
@@ -466,6 +471,14 @@ public class FileUtils {
 		}		
 		
 		return list;
+	}
+	
+	public static boolean hasChildDirectories( File file ) {
+		final File[] dirs = file.listFiles(mDirFilter);
+		if( dirs != null  &&  dirs.length > 0 ) {
+			return true ;
+		}
+		return false ;
 	}
 
 	/**

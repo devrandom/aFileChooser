@@ -36,6 +36,8 @@ import android.widget.Toast;
 
 import java.io.File;
 
+import com.ipaulpro.afilechooser.utils.FileUtils;
+
 /**
  * Main Activity that handles the FileListFragments 
  * 
@@ -46,7 +48,13 @@ import java.io.File;
  */
 public class FileChooserActivity extends FragmentActivity implements
 		OnBackStackChangedListener {
+	
+    public static final String ACTION_FOLDER_BROWSER = "FolderBrowser";
+    public static final String ACTION_FILE_BROWSER = "FileBrowser";
+    
+    private boolean mFolderBrowser = false ;
 
+    public static final String ARG_FOLDER_BROWSER = "FolderBrowser";
     public static final String PATH = "path";
 	public static final String EXTERNAL_BASE_PATH = Environment
 			.getExternalStorageDirectory().getAbsolutePath();
@@ -67,6 +75,11 @@ public class FileChooserActivity extends FragmentActivity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		String action = getIntent().getAction() ;
+		if( ACTION_FOLDER_BROWSER.equals(action) ) {
+			mFolderBrowser = true ;
+		}
 
 		setContentView(R.layout.chooser);
 
@@ -78,8 +91,9 @@ public class FileChooserActivity extends FragmentActivity implements
 			addFragment();
 		} else {
 			mPath = savedInstanceState.getString(PATH);
+			mFolderBrowser = savedInstanceState.getBoolean(ARG_FOLDER_BROWSER);
 		}
-
+		// TODO handle path inside the geebox
 		setTitle(mPath);
 	}
 
@@ -102,6 +116,7 @@ public class FileChooserActivity extends FragmentActivity implements
 		super.onSaveInstanceState(outState);
 		
 		outState.putString(PATH, mPath);
+		outState.putBoolean(ARG_FOLDER_BROWSER, mFolderBrowser);
 	}
 
 	@Override
@@ -147,7 +162,7 @@ public class FileChooserActivity extends FragmentActivity implements
 	 * Add the initial Fragment with given path.
 	 */
 	private void addFragment() {
-		FileListFragment fragment = FileListFragment.newInstance(mPath);
+		FileListFragment fragment = FileListFragment.newInstance(mPath,mFolderBrowser);
 		mFragmentManager.beginTransaction()
 				.add(R.id.explorer_fragment, fragment).commit();
 	}
@@ -161,7 +176,7 @@ public class FileChooserActivity extends FragmentActivity implements
 	private void replaceFragment(File file) {
         mPath = file.getAbsolutePath();
 
-        FileListFragment fragment = FileListFragment.newInstance(mPath);
+        FileListFragment fragment = FileListFragment.newInstance(mPath, mFolderBrowser);
 		mFragmentManager.beginTransaction()
 				.replace(R.id.explorer_fragment, fragment)
 				.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
@@ -191,6 +206,16 @@ public class FileChooserActivity extends FragmentActivity implements
 	 */
 	protected void onFileSelected(File file) {
 		if (file != null) {
+			// folder browser - recurse only if has children directories
+			if( mFolderBrowser ) {
+				if( FileUtils.hasChildDirectories( file ) ) {
+					replaceFragment(file);
+				} else {
+					finishWithResult(file);	
+				}
+				return ;
+			}
+			
 			if (file.isDirectory()) {
 				replaceFragment(file);
 			} else {

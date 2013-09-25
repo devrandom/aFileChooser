@@ -42,6 +42,7 @@ public class FileListFragment extends ListFragment implements
 
 	private FileListAdapter mAdapter;
 	private String mPath;
+	private boolean mFolderBrowser ;
 
 	/**
 	 * Create a new instance with the given file path.
@@ -49,10 +50,11 @@ public class FileListFragment extends ListFragment implements
 	 * @param path The absolute path of the file (directory) to display.
 	 * @return A new Fragment with the given file path. 
 	 */
-	public static FileListFragment newInstance(String path) {
+	public static FileListFragment newInstance(String path, boolean folderBrowser) {
 		FileListFragment fragment = new FileListFragment();
 		Bundle args = new Bundle();
 		args.putString(FileChooserActivity.PATH, path);
+		args.putBoolean(FileChooserActivity.ARG_FOLDER_BROWSER, folderBrowser);
 		fragment.setArguments(args);
 
 		return fragment;
@@ -66,6 +68,9 @@ public class FileListFragment extends ListFragment implements
 		mPath = getArguments() != null ? getArguments().getString(
 				FileChooserActivity.PATH) : Environment
 				.getExternalStorageDirectory().getAbsolutePath();
+		Bundle x = getArguments();
+		boolean y = x.getBoolean(FileChooserActivity.ARG_FOLDER_BROWSER);
+		mFolderBrowser = getArguments() == null ? false : getArguments().getBoolean(FileChooserActivity.ARG_FOLDER_BROWSER);
 	}
 
 	@Override
@@ -91,7 +96,7 @@ public class FileListFragment extends ListFragment implements
 
 	@Override
 	public Loader<List<File>> onCreateLoader(int id, Bundle args) {
-		return new FileLoader(getActivity(), mPath);
+		return new FileLoader(getActivity(), mPath, mFolderBrowser);
 	}
 
 	@Override

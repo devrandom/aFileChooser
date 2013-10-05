@@ -28,6 +28,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ipaulpro.afilechooser.utils.FileUtils;
+
 /**
  * List adapter for Files.
  * 
@@ -38,6 +40,7 @@ import java.util.List;
  */
 public class FileListAdapter extends BaseAdapter {
 
+	private final static int ICON_FOLDER_WITH_FOLDERS = R.drawable.ic_folder_with_folders;
 	private final static int ICON_FOLDER = R.drawable.ic_folder;
 	private final static int ICON_FILE = R.drawable.ic_file;
 
@@ -103,8 +106,9 @@ public class FileListAdapter extends BaseAdapter {
 		holder.nameView.setText(file.getName());
 
 		// If the item is not a directory, use the file icon
-		holder.iconView.setImageResource(file.isDirectory() ? ICON_FOLDER
-				: ICON_FILE);
+//		holder.iconView.setImageResource(file.isDirectory() ? ICON_FOLDER : ICON_FILE);
+		int resId = file.isDirectory() ? ( FileUtils.hasChildDirectories(file) ? ICON_FOLDER_WITH_FOLDERS : ICON_FOLDER) : ICON_FILE ;
+		holder.iconView.setImageResource( resId );
 
 		return row;
 	}

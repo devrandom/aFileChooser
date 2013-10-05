@@ -17,8 +17,12 @@
 package com.ipaulpro.afilechooser;
 
 import android.app.ActionBar;
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
@@ -188,15 +192,46 @@ public class FileChooserActivity extends FragmentActivity implements
 	 * 
 	 * @param file The file selected.
 	 */
-	private void finishWithResult(File file) {
-		if (file != null) {
-			Uri uri = Uri.fromFile(file);
-			setResult(RESULT_OK, new Intent().setData(uri));
-			finish();
-		} else {
+	private void finishWithResult(final File file) {
+		if( file == null ) {
 			setResult(RESULT_CANCELED);	
 			finish();
 		}
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage("Select '" + file.getName() + "' ?")
+			.setPositiveButton("Yes", new OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.dismiss();
+					Uri uri = Uri.fromFile(file);
+					setResult(RESULT_OK, new Intent().setData(uri));
+					finish();
+				}
+			})
+		    .setNegativeButton("No", null)
+		    .show();
+	}
+	
+	public static void finishWithResult(final Activity aActivity, final File file) {
+		if( file == null ) {
+			aActivity.setResult(RESULT_CANCELED);	
+			aActivity.finish();
+		}
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(aActivity);
+		builder.setMessage("Select '" + file.getName() + "' ?")
+			.setPositiveButton("Yes", new OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.dismiss();
+					Uri uri = Uri.fromFile(file);
+					aActivity.setResult(RESULT_OK, new Intent().setData(uri));
+					aActivity.finish();
+				}
+			})
+		    .setNegativeButton("No", null)
+		    .show();
 	}
 	
 	/**

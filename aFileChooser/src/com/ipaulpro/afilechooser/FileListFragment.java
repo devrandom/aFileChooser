@@ -16,12 +16,15 @@
 
 package com.ipaulpro.afilechooser;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 
 import java.io.File;
@@ -78,6 +81,15 @@ public class FileListFragment extends ListFragment implements
 		setEmptyText(getString(R.string.empty_directory));
 		setListAdapter(mAdapter);
 		setListShown(false);
+		
+		this.getListView().setLongClickable(true);
+		this.getListView().setOnItemLongClickListener(new OnItemLongClickListener() {
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View v, int position, long id) {
+				FileChooserActivity.finishWithResult(getActivity(), (File) mAdapter.getItem(position) );
+				return true;
+			}
+		});
 
 		getLoaderManager().initLoader(LOADER_ID, null, this);
 		

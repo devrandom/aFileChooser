@@ -188,7 +188,7 @@ public class FileChooserActivity extends FragmentActivity implements
 	 * 
 	 * @param file The file selected.
 	 */
-	private void finishWithResult(File file) {
+	public void finishWithResult(File file) {
 		if (file != null) {
 			Uri uri = Uri.fromFile(file);
 			setResult(RESULT_OK, new Intent().setData(uri));

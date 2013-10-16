@@ -16,12 +16,18 @@
 
 package com.ipaulpro.afilechooser;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 
 import java.io.File;
@@ -81,6 +87,9 @@ public class FileListFragment extends ListFragment implements
 
 		getLoaderManager().initLoader(LOADER_ID, null, this);
 		
+		getListView().setLongClickable(true);
+		getListView().setOnItemLongClickListener(mOnItemLongClickListener);
+		
 		super.onActivityCreated(savedInstanceState);
 	}
 
@@ -93,6 +102,33 @@ public class FileListFragment extends ListFragment implements
 			((FileChooserActivity) getActivity()).onFileSelected(file);
 		}
 	}
+	
+	private OnItemLongClickListener mOnItemLongClickListener = new OnItemLongClickListener() {
+        public boolean onItemLongClick(AdapterView<?> parent, View v, int position, long id) {
+        		File file = (File) parent.getItemAtPosition(position);
+        		select( 	FileListFragment.this.getActivity(), file ) ;
+            return true;
+        }
+	};
+	
+	public static void select( final Activity aActivity, final File aFile ) {
+		String title = String .format( "Select %s %s ?",(aFile.isDirectory() ? "folder" : "file"), aFile.getAbsolutePath() ) ;
+			
+		AlertDialog.Builder builder = new AlertDialog.Builder(aActivity)
+		.setTitle( title )
+		.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+				((FileChooserActivity)aActivity).finishWithResult( aFile );
+			}
+		})
+		.setNegativeButton("Cancel", null );
+
+		final AlertDialog alertDialog = builder.create();
+		alertDialog.show();
+	}
+	
 
 	@Override
 	public Loader<List<File>> onCreateLoader(int id, Bundle args) {

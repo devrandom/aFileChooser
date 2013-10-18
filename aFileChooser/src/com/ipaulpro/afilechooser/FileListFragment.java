@@ -16,11 +16,13 @@
 
 package com.ipaulpro.afilechooser;
 
-import android.app.Activity;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.view.View;
 import android.widget.AdapterView;
@@ -38,16 +40,18 @@ import java.util.List;
  * @author paulburke (ipaulpro)
  * 
  */
-public class FileListFragment extends ListFragment implements
-		LoaderManager.LoaderCallbacks<List<File>> {
+public class FileListFragment extends ListFragment {
 
-	private static final int LOADER_ID = 0;
+	private static final int FILE_LOADER_ID = 0;
+    private static final int VIRTUAL_LOADER_ID = 1;
 
-	private FileListAdapter mAdapter;
+
+    private FileListAdapter mAdapter;
 	private String mPath;
 	private boolean mFolderBrowser ;
+    private FileLoaderCallback mFileLoaderCallback;
 
-	/**
+    /**
 	 * Create a new instance with the given file path.
 	 * 
 	 * @param path The absolute path of the file (directory) to display.
@@ -84,14 +88,15 @@ public class FileListFragment extends ListFragment implements
 		
 		this.getListView().setLongClickable(true);
 		this.getListView().setOnItemLongClickListener(new OnItemLongClickListener() {
-			@Override
-			public boolean onItemLongClick(AdapterView<?> parent, View v, int position, long id) {
-				FileChooserActivity.finishWithResult(getActivity(), (File) mAdapter.getItem(position) );
-				return true;
-			}
-		});
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View v, int position, long id) {
+                FileChooserActivity.finishWithResult(getActivity(), (File) mAdapter.getItem(position));
+                return true;
+            }
+        });
 
-		getLoaderManager().initLoader(LOADER_ID, null, this);
+        mFileLoaderCallback = new FileLoaderCallback();
+		getLoaderManager().initLoader(FILE_LOADER_ID, null, mFileLoaderCallback);
 		
 		super.onActivityCreated(savedInstanceState);
 	}
@@ -106,23 +111,53 @@ public class FileListFragment extends ListFragment implements
 		}
 	}
 
-	@Override
-	public Loader<List<File>> onCreateLoader(int id, Bundle args) {
-		return new FileLoader(getActivity(), mPath, mFolderBrowser);
-	}
+    class FileLoaderCallback implements
+            LoaderManager.LoaderCallbacks<List<File>> {
+        @Override
+        public Loader<List<File>> onCreateLoader(int id, Bundle args) {
+            return new FileLoader(getActivity(), mPath, mFolderBrowser);
+        }
 
-	@Override
-	public void onLoadFinished(Loader<List<File>> loader, List<File> data) {
-		mAdapter.setListItems(data);
+        @Override
+        public void onLoadFinished(Loader<List<File>> loader, List<File> data) {
+            mAdapter.setFileItems(data);
 
-		if (isResumed())
-			setListShown(true);
-		else
-			setListShownNoAnimation(true);
-	}
+            if (isResumed())
+                setListShown(true);
+            else
+                setListShownNoAnimation(true);
+        }
 
-	@Override
-	public void onLoaderReset(Loader<List<File>> loader) {
-		mAdapter.clear();
-	}
+        @Override
+        public void onLoaderReset(Loader<List<File>> loader) {
+            mAdapter.clear();
+        }
+    }
+
+    class CursorLoaderCallback implements
+            LoaderManager.LoaderCallbacks<Cursor> {
+        @Override
+        public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+            // TODO filter by directory
+            // TODO extract this to something that is passed in
+            return new CursorLoader(getActivity(),
+                    Uri.parse("content://info.guardianproject.geebox/virtuals"),
+                    null, null, null, null);
+        }
+
+        @Override
+        public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+            mAdapter.setVirtualItems(data);
+
+            if (isResumed())
+                setListShown(true);
+            else
+                setListShownNoAnimation(true);
+        }
+
+        @Override
+        public void onLoaderReset(Loader<Cursor> loader) {
+            mAdapter.setVirtualItems(null);
+        }
+    }
 }

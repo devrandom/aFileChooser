@@ -17,6 +17,7 @@
 package com.ipaulpro.afilechooser;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,7 +56,11 @@ public class FileListAdapter extends BaseAdapter {
 		return (ArrayList<File>) mFiles;
 	}
 
-	public void setListItems(List<File> files) {
+    public void setVirtualItems(Cursor data) {
+
+    }
+
+    public void setFileItems(List<File> files) {
 		this.mFiles = files;
 		notifyDataSetChanged();
 	}
@@ -113,7 +118,7 @@ public class FileListAdapter extends BaseAdapter {
 		return row;
 	}
 
-	static class ViewHolder {
+    static class ViewHolder {
 		TextView nameView;
 		ImageView iconView;
 

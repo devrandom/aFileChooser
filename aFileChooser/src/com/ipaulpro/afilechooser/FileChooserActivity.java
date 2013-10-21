@@ -25,6 +25,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -34,6 +35,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentManager.BackStackEntry;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.Loader;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -275,5 +277,16 @@ public class FileChooserActivity extends FragmentActivity implements
 	 */
 	private void unregisterStorageListener() {
 		unregisterReceiver(mStorageListener);
+	}
+
+	/**
+	 * to be overriden by the app
+	 */
+	public File createVirtual(Cursor aCursor) {
+		return null;
+	}
+
+	public Loader<Cursor> getVirtualsCursorLoader(String mPath) {
+		return null;
 	}
 }

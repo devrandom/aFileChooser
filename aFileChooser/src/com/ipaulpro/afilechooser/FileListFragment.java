@@ -17,12 +17,10 @@
 package com.ipaulpro.afilechooser;
 
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.view.View;
 import android.widget.AdapterView;
@@ -30,6 +28,7 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,6 +49,7 @@ public class FileListFragment extends ListFragment {
 	private String mPath;
 	private boolean mFolderBrowser ;
     private FileLoaderCallback mFileLoaderCallback;
+    private CursorLoaderCallback mCursorLoaderCallback;
 
     /**
 	 * Create a new instance with the given file path.
@@ -97,6 +97,8 @@ public class FileListFragment extends ListFragment {
 
         mFileLoaderCallback = new FileLoaderCallback();
 		getLoaderManager().initLoader(FILE_LOADER_ID, null, mFileLoaderCallback);
+        mCursorLoaderCallback = new CursorLoaderCallback();
+		getLoaderManager().initLoader(VIRTUAL_LOADER_ID, null, mCursorLoaderCallback);
 		
 		super.onActivityCreated(savedInstanceState);
 	}
@@ -138,16 +140,13 @@ public class FileListFragment extends ListFragment {
             LoaderManager.LoaderCallbacks<Cursor> {
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-            // TODO filter by directory
-            // TODO extract this to something that is passed in
-            return new CursorLoader(getActivity(),
-                    Uri.parse("content://info.guardianproject.geebox/virtuals"),
-                    null, null, null, null);
+        		return getFileChooserActivity().getVirtualsCursorLoader( mPath ) ;
         }
 
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-            mAdapter.setVirtualItems(data);
+        		List<File> list = getList( data ) ;
+            mAdapter.setVirtualItems( list );
 
             if (isResumed())
                 setListShown(true);
@@ -155,9 +154,27 @@ public class FileListFragment extends ListFragment {
                 setListShownNoAnimation(true);
         }
 
-        @Override
+        /**
+		 * @param data
+		 * @return
+		 */
+		private List<File> getList(Cursor aCursor ) {
+			List<File> list = new ArrayList<File>();
+			aCursor.moveToPosition(-1);
+			while( aCursor.moveToNext() ) {
+				File file = getFileChooserActivity().createVirtual(aCursor) ;
+				list.add(file);
+			}
+			return list ;
+		}
+
+		@Override
         public void onLoaderReset(Loader<Cursor> loader) {
             mAdapter.setVirtualItems(null);
         }
     }
+    
+	private FileChooserActivity getFileChooserActivity() {
+		return (FileChooserActivity)getActivity() ;
+	}
 }

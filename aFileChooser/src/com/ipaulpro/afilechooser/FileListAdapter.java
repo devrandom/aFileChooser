@@ -46,6 +46,8 @@ public class FileListAdapter extends BaseAdapter {
 	private final static int ICON_FILE = R.drawable.ic_file;
 
 	private List<File> mFiles = new ArrayList<File>();
+	private List<File> mVirtuals = new ArrayList<File>();
+	
 	private final LayoutInflater mInflater;
 
 	public FileListAdapter(Context context) {
@@ -56,8 +58,9 @@ public class FileListAdapter extends BaseAdapter {
 		return (ArrayList<File>) mFiles;
 	}
 
-    public void setVirtualItems(Cursor data) {
-
+    public void setVirtualItems(List<File> list) {
+		this.mVirtuals = list;
+		notifyDataSetChanged();
     }
 
     public void setFileItems(List<File> files) {

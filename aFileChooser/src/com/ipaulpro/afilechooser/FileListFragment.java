@@ -50,22 +50,25 @@ public class FileListFragment extends ListFragment {
 	private boolean mFolderBrowser ;
     private FileLoaderCallback mFileLoaderCallback;
     private CursorLoaderCallback mCursorLoaderCallback;
+    private FileChooserActivity.VirtualsFactory mVirtualsFactory;
 
     /**
-	 * Create a new instance with the given file path.
-	 * 
-	 * @param path The absolute path of the file (directory) to display.
-	 * @return A new Fragment with the given file path. 
-	 */
-	public static FileListFragment newInstance(String path, boolean folderBrowser) {
-		FileListFragment fragment = new FileListFragment();
-		Bundle args = new Bundle();
-		args.putString(FileChooserActivity.PATH, path);
-		args.putBoolean(FileChooserActivity.ARG_FOLDER_BROWSER, folderBrowser);
-		fragment.setArguments(args);
+     * Create a new instance with the given file path.
+     *
+     * @param path The absolute path of the file (directory) to display.
+     * @return A new Fragment with the given file path.
+     */
+    public static FileListFragment newInstance(String path, boolean folderBrowser,
+                                               FileChooserActivity.VirtualsFactory aVirtualsFactory) {
+        FileListFragment fragment = new FileListFragment();
+        Bundle args = new Bundle();
+        args.putString(FileChooserActivity.PATH, path);
+        args.putBoolean(FileChooserActivity.ARG_FOLDER_BROWSER, folderBrowser);
+        fragment.setArguments(args);
+        fragment.setVirtualsFactory(aVirtualsFactory);
 
-		return fragment;
-	}
+        return fragment;
+    }
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -113,6 +116,14 @@ public class FileListFragment extends ListFragment {
 		}
 	}
 
+    public void setVirtualsFactory(FileChooserActivity.VirtualsFactory virtualsFactory) {
+        this.mVirtualsFactory = virtualsFactory;
+    }
+
+    public FileChooserActivity.VirtualsFactory getVirtualsFactory() {
+        return mVirtualsFactory;
+    }
+
     class FileLoaderCallback implements
             LoaderManager.LoaderCallbacks<List<File>> {
         @Override
@@ -140,13 +151,13 @@ public class FileListFragment extends ListFragment {
             LoaderManager.LoaderCallbacks<Cursor> {
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        		return getFileChooserActivity().getVirtualsCursorLoader( mPath ) ;
+        		return mVirtualsFactory.getVirtualsCursorLoader( mPath ) ;
         }
 
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        		List<File> list = getList( data ) ;
-            mAdapter.setVirtualItems( list );
+        		List<File> list = getVirtualList(data) ;
+            mAdapter.setVirtualItems(list);
 
             if (isResumed())
                 setListShown(true);
@@ -154,27 +165,27 @@ public class FileListFragment extends ListFragment {
                 setListShownNoAnimation(true);
         }
 
-        /**
-		 * @param data
-		 * @return
-		 */
-		private List<File> getList(Cursor aCursor ) {
-			List<File> list = new ArrayList<File>();
-			aCursor.moveToPosition(-1);
-			while( aCursor.moveToNext() ) {
-				File file = getFileChooserActivity().createVirtual(aCursor) ;
-				list.add(file);
-			}
-			return list ;
-		}
-
 		@Override
         public void onLoaderReset(Loader<Cursor> loader) {
             mAdapter.setVirtualItems(null);
         }
     }
-    
-	private FileChooserActivity getFileChooserActivity() {
+
+    /**
+     * @param aCursor
+     * @return
+     */
+    List<File> getVirtualList(Cursor aCursor) {
+        List<File> list = new ArrayList<File>();
+        aCursor.moveToPosition(-1);
+        while( aCursor.moveToNext() ) {
+            File file = mVirtualsFactory.createVirtual(aCursor) ;
+            list.add(file);
+        }
+        return list ;
+    }
+
+    private FileChooserActivity getFileChooserActivity() {
 		return (FileChooserActivity)getActivity() ;
 	}
 }

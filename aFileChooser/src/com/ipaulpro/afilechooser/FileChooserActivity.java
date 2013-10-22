@@ -40,9 +40,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import java.io.File;
-
 import com.ipaulpro.afilechooser.utils.FileUtils;
+
+import java.io.File;
 
 /**
  * Main Activity that handles the FileListFragments 
@@ -168,7 +168,7 @@ public class FileChooserActivity extends FragmentActivity implements
 	 * Add the initial Fragment with given path.
 	 */
 	private void addFragment() {
-		FileListFragment fragment = FileListFragment.newInstance(mPath,mFolderBrowser);
+		FileListFragment fragment = FileListFragment.newInstance(mPath, mFolderBrowser, getVirtualsFactory());
 		mFragmentManager.beginTransaction()
 				.add(R.id.explorer_fragment, fragment).commit();
 	}
@@ -182,7 +182,7 @@ public class FileChooserActivity extends FragmentActivity implements
 	private void replaceFragment(File file) {
         mPath = file.getAbsolutePath();
 
-        FileListFragment fragment = FileListFragment.newInstance(mPath, mFolderBrowser);
+        FileListFragment fragment = FileListFragment.newInstance(mPath, mFolderBrowser, getVirtualsFactory());
 		mFragmentManager.beginTransaction()
 				.replace(R.id.explorer_fragment, fragment)
 				.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
@@ -279,14 +279,23 @@ public class FileChooserActivity extends FragmentActivity implements
 		unregisterReceiver(mStorageListener);
 	}
 
-	/**
-	 * to be overriden by the app
-	 */
-	public File createVirtual(Cursor aCursor) {
-		return null;
-	}
+    public interface VirtualsFactory {
+        public File createVirtual(Cursor aCursor);
 
-	public Loader<Cursor> getVirtualsCursorLoader(String mPath) {
-		return null;
-	}
+        public Loader<Cursor> getVirtualsCursorLoader(String mPath);
+    }
+
+    public VirtualsFactory getVirtualsFactory() {
+        return new VirtualsFactory() {
+            @Override
+            public File createVirtual(Cursor aCursor) {
+                return null;
+            }
+
+            @Override
+            public Loader<Cursor> getVirtualsCursorLoader(String mPath) {
+                return null;
+            }
+        };
+    }
 }

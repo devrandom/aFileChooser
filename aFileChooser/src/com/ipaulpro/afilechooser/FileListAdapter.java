@@ -17,7 +17,7 @@
 package com.ipaulpro.afilechooser;
 
 import android.content.Context;
-import android.database.Cursor;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,11 +25,13 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.ipaulpro.afilechooser.utils.FileUtils;
+
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-
-import com.ipaulpro.afilechooser.utils.FileUtils;
 
 /**
  * List adapter for Files.
@@ -37,7 +39,7 @@ import com.ipaulpro.afilechooser.utils.FileUtils;
  * @version 2013-06-25
  * 
  * @author paulburke (ipaulpro)
- * 
+ *
  */
 public class FileListAdapter extends BaseAdapter {
 
@@ -47,7 +49,8 @@ public class FileListAdapter extends BaseAdapter {
 
 	private List<File> mFiles = new ArrayList<File>();
 	private List<File> mVirtuals = new ArrayList<File>();
-	
+    private List<File> mLocals = new ArrayList<File>();
+
 	private final LayoutInflater mInflater;
 
 	public FileListAdapter(Context context) {
@@ -60,13 +63,34 @@ public class FileListAdapter extends BaseAdapter {
 
     public void setVirtualItems(List<File> list) {
 		this.mVirtuals = list;
+        merge() ;
 		notifyDataSetChanged();
     }
 
-    public void setFileItems(List<File> files) {
-		this.mFiles = files;
+    public void setFileItems(List<File> list) {
+		this.mLocals = list;
+        merge() ;
 		notifyDataSetChanged();
 	}
+
+    private void merge() {
+        mFiles.clear();
+        if( mLocals != null )
+            mFiles.addAll(mLocals);
+        if( mVirtuals != null )
+            mFiles.addAll(mVirtuals);
+    }
+
+    private void sort() {
+        // TODO add more sorts
+        // alpha sort for now
+        Collections.sort(mFiles, new Comparator<File>() {
+            @Override
+            public int compare(File data1, File data2) {
+                return data1.compareTo(data2);
+            }
+        });
+    }
 
 	@Override
     public int getCount() {
@@ -112,6 +136,10 @@ public class FileListAdapter extends BaseAdapter {
 
 		// Set the TextView as the file name
 		holder.nameView.setText(file.getName());
+
+        // set color for virtuals
+        int color = (position < mLocals.size()) ? Color.BLACK : Color.GRAY ;
+        holder.nameView.setTextColor(color);
 
 		// If the item is not a directory, use the file icon
 //		holder.iconView.setImageResource(file.isDirectory() ? ICON_FOLDER : ICON_FILE);

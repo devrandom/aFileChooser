@@ -31,7 +31,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * List adapter for Files.
@@ -48,8 +50,8 @@ public class FileListAdapter extends BaseAdapter {
 	private final static int ICON_FILE = R.drawable.ic_file;
 
 	private List<File> mFiles = new ArrayList<File>();
-	private List<File> mVirtuals = new ArrayList<File>();
-    private List<File> mLocals = new ArrayList<File>();
+	private Set<File> mVirtuals = new HashSet<File>();
+    private Set<File> mLocals = new HashSet<File>();
 
 	private final LayoutInflater mInflater;
 
@@ -62,13 +64,19 @@ public class FileListAdapter extends BaseAdapter {
 	}
 
     public void setVirtualItems(List<File> list) {
-		this.mVirtuals = list;
+        mVirtuals = new HashSet<File>();
+        if( list != null) {
+            mVirtuals.addAll(list);
+        }
         merge() ;
 		notifyDataSetChanged();
     }
 
     public void setFileItems(List<File> list) {
-		this.mLocals = list;
+        mLocals = new HashSet<File>();
+        if( list != null ) {
+            mLocals.addAll(list);
+        }
         merge() ;
 		notifyDataSetChanged();
 	}
@@ -79,6 +87,7 @@ public class FileListAdapter extends BaseAdapter {
             mFiles.addAll(mLocals);
         if( mVirtuals != null )
             mFiles.addAll(mVirtuals);
+        sort() ;
     }
 
     private void sort() {
@@ -90,6 +99,11 @@ public class FileListAdapter extends BaseAdapter {
                 return data1.compareTo(data2);
             }
         });
+    }
+
+    private boolean isVirtual( int aPosition ) {
+        if( mVirtuals == null ) return false ;
+        return mVirtuals.contains( getItem( aPosition ) ) ;
     }
 
 	@Override
@@ -138,7 +152,7 @@ public class FileListAdapter extends BaseAdapter {
 		holder.nameView.setText(file.getName());
 
         // set color for virtuals
-        int color = (position < mLocals.size()) ? Color.BLACK : Color.GRAY ;
+        int color = isVirtual(position) ? Color.GRAY : Color.BLACK ;
         holder.nameView.setTextColor(color);
 
 		// If the item is not a directory, use the file icon

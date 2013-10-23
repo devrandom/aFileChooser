@@ -28,7 +28,6 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -156,7 +155,7 @@ public class FileListFragment extends ListFragment {
 
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        		List<File> list = getVirtualList(data) ;
+        	List<File> list = mVirtualsFactory.createVirtualList(data) ;
             mAdapter.setVirtualItems(list);
 
             if (isResumed())
@@ -171,19 +170,19 @@ public class FileListFragment extends ListFragment {
         }
     }
 
-    /**
-     * @param aCursor
-     * @return
-     */
-    List<File> getVirtualList(Cursor aCursor) {
-        List<File> list = new ArrayList<File>();
-        aCursor.moveToPosition(-1);
-        while( aCursor.moveToNext() ) {
-            File file = mVirtualsFactory.createVirtual(aCursor) ;
-            list.add(file);
-        }
-        return list ;
-    }
+//    /**
+//     * @param aCursor
+//     * @return
+//     */
+//    public List<File> getVirtualList(Cursor aCursor) {
+//        List<File> list = new ArrayList<File>();
+//        aCursor.moveToPosition(-1);
+//        while( aCursor.moveToNext() ) {
+//            File file = mVirtualsFactory.createVirtual(aCursor) ;
+//            list.add(file);
+//        }
+//        return list ;
+//    }
 
     private FileChooserActivity getFileChooserActivity() {
 		return (FileChooserActivity)getActivity() ;

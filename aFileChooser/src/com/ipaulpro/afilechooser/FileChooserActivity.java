@@ -43,6 +43,7 @@ import android.widget.Toast;
 import com.ipaulpro.afilechooser.utils.FileUtils;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * Main Activity that handles the FileListFragments 
@@ -281,7 +282,7 @@ public class FileChooserActivity extends FragmentActivity implements
 
     public interface VirtualsFactory {
         public File createVirtual(Cursor aCursor);
-
+        public List<File> createVirtualList(Cursor aCursor);
         public Loader<Cursor> getVirtualsCursorLoader(String mPath);
     }
 
@@ -289,6 +290,11 @@ public class FileChooserActivity extends FragmentActivity implements
         return new VirtualsFactory() {
             @Override
             public File createVirtual(Cursor aCursor) {
+                return null;
+            }
+
+            @Override
+            public List<File> createVirtualList(Cursor aCursor) {
                 return null;
             }
 

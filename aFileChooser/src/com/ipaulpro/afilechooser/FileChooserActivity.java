@@ -27,7 +27,6 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentManager.BackStackEntry;
@@ -54,13 +53,12 @@ public class FileChooserActivity extends FragmentActivity implements
 	
     public static final String ACTION_FOLDER_BROWSER = "FolderBrowser";
     public static final String ACTION_FILE_BROWSER = "FileBrowser";
-    
+    public static final String EXTRA_BASE_PATH = "BasePath";
+
     private boolean mFolderBrowser = false ;
 
     public static final String ARG_FOLDER_BROWSER = "FolderBrowser";
     public static final String PATH = "path";
-	public static final String EXTERNAL_BASE_PATH = Environment
-			.getExternalStorageDirectory().getAbsolutePath();
 
 	private FragmentManager mFragmentManager;
 	private BroadcastReceiver mStorageListener = new BroadcastReceiver() {
@@ -70,9 +68,11 @@ public class FileChooserActivity extends FragmentActivity implements
 			finishWithResult(null);
 		}
 	};
-	
-	private String mPath;
-	
+
+    private String mPath;
+	protected String mBasePath; // start browsing here
+    protected String mAppRootPath; // app root path - hide from title
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -81,6 +81,10 @@ public class FileChooserActivity extends FragmentActivity implements
 		if( ACTION_FOLDER_BROWSER.equals(action) ) {
 			mFolderBrowser = true ;
 		}
+        if( getIntent().getStringExtra(EXTRA_BASE_PATH) != null ) {
+            mBasePath = getIntent().getStringExtra(EXTRA_BASE_PATH);
+        }
+        mPath = mBasePath ;
 
 		setContentView(R.layout.chooser);
 
@@ -88,15 +92,22 @@ public class FileChooserActivity extends FragmentActivity implements
 		mFragmentManager.addOnBackStackChangedListener(this);
 
 		if (savedInstanceState == null) {
-			mPath = EXTERNAL_BASE_PATH;
 			addFragment();
 		} else {
 			mPath = savedInstanceState.getString(PATH);
 			mFolderBrowser = savedInstanceState.getBoolean(ARG_FOLDER_BROWSER);
 		}
 		// TODO handle path inside the geebox
-		setTitle(mPath);
+		setPathTitle(mPath);
 	}
+
+    public void setPathTitle(String aPath ) {
+        String title = aPath ;
+        if( aPath.toString().startsWith(mAppRootPath)) {
+            title = aPath.substring( mAppRootPath.length()-1 );
+        }
+        setTitle(title);
+    }
 
 	@Override
 	protected void onPause() {
@@ -128,10 +139,10 @@ public class FileChooserActivity extends FragmentActivity implements
             BackStackEntry fragment = mFragmentManager.getBackStackEntryAt(count - 1);
             mPath = fragment.getName();
 		} else {
-		    mPath = EXTERNAL_BASE_PATH;
+		    mPath = mBasePath;
 		}
 		
-		setTitle(mPath);
+		setPathTitle(mPath);
 	}
 	
 	/**

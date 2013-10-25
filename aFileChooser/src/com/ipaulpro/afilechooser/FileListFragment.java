@@ -77,8 +77,6 @@ public class FileListFragment extends ListFragment {
 		mPath = getArguments() != null ? getArguments().getString(
 				FileChooserActivity.PATH) : Environment
 				.getExternalStorageDirectory().getAbsolutePath();
-		Bundle x = getArguments();
-		boolean y = x.getBoolean(FileChooserActivity.ARG_FOLDER_BROWSER);
 		mFolderBrowser = getArguments() == null ? false : getArguments().getBoolean(FileChooserActivity.ARG_FOLDER_BROWSER);
 	}
 

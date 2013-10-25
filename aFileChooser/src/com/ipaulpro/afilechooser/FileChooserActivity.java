@@ -16,7 +16,6 @@
 
 package com.ipaulpro.afilechooser;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -27,7 +26,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.FragmentActivity;
@@ -36,8 +34,6 @@ import android.support.v4.app.FragmentManager.BackStackEntry;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.Loader;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.ipaulpro.afilechooser.utils.FileUtils;
@@ -65,8 +61,6 @@ public class FileChooserActivity extends FragmentActivity implements
     public static final String PATH = "path";
 	public static final String EXTERNAL_BASE_PATH = Environment
 			.getExternalStorageDirectory().getAbsolutePath();
-
-	private static final boolean HAS_ACTIONBAR = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
 
 	private FragmentManager mFragmentManager;
 	private BroadcastReceiver mStorageListener = new BroadcastReceiver() {
@@ -138,33 +132,8 @@ public class FileChooserActivity extends FragmentActivity implements
 		}
 		
 		setTitle(mPath);
-		if (HAS_ACTIONBAR) invalidateOptionsMenu();
 	}
 	
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-        if (HAS_ACTIONBAR) {
-            boolean hasBackStack = mFragmentManager.getBackStackEntryCount() > 0;
-            
-            ActionBar actionBar = getActionBar();
-            actionBar.setDisplayHomeAsUpEnabled(hasBackStack);
-            actionBar.setHomeButtonEnabled(hasBackStack);
-        }
-	    
-	    return true;
-	}
-	
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-	    switch (item.getItemId()) {
-	        case android.R.id.home:
-	            mFragmentManager.popBackStack();
-	            return true;
-	    }
-
-	    return super.onOptionsItemSelected(item);
-	}
-
 	/**
 	 * Add the initial Fragment with given path.
 	 */

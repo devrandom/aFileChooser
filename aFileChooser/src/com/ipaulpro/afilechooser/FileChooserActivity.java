@@ -103,7 +103,7 @@ public class FileChooserActivity extends FragmentActivity implements
 
     public void setPathTitle(String aPath ) {
         String title = aPath ;
-        if( aPath.toString().startsWith(mAppRootPath)) {
+        if( aPath.startsWith(mAppRootPath)) {
             title = aPath.substring( mAppRootPath.length()-1 );
         }
         setTitle(title);

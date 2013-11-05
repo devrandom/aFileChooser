@@ -29,11 +29,7 @@ import com.ipaulpro.afilechooser.utils.FileUtils;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * List adapter for Files.
@@ -49,81 +45,39 @@ public class FileListAdapter extends BaseAdapter {
 	private final static int ICON_FOLDER = R.drawable.ic_folder;
 	private final static int ICON_FILE = R.drawable.ic_file;
 
-	private List<File> mFiles = new ArrayList<File>();
-	private Set<File> mVirtuals = new HashSet<File>();
-    private Set<File> mLocals = new HashSet<File>();
+	private List<VFile> mVFiles = new ArrayList<VFile>();
 
 	private final LayoutInflater mInflater;
+    private VFS mVFS;
 
-	public FileListAdapter(Context context) {
+    public FileListAdapter(Context context) {
 		mInflater = LayoutInflater.from(context);
 	}
 
-	public ArrayList<File> getListItems() {
-		return (ArrayList<File>) mFiles;
-	}
-
-    public void setVirtualItems(List<File> list) {
-        mVirtuals = new HashSet<File>();
-        if( list != null) {
-            mVirtuals.addAll(list);
-        }
-        merge() ;
-		notifyDataSetChanged();
+    @Override
+    public void notifyDataSetChanged() {
+        mVFiles = mVFS.getVFiles();
+        super.notifyDataSetChanged();
     }
 
-    public void setFileItems(List<File> list) {
-        mLocals = new HashSet<File>();
-        if( list != null ) {
-            mLocals.addAll(list);
-        }
-        merge() ;
-		notifyDataSetChanged();
-	}
-
-    private void merge() {
-        mFiles.clear();
-        if( mLocals != null )
-            mFiles.addAll(mLocals);
-        if( mVirtuals != null )
-            mFiles.addAll(mVirtuals);
-        sort() ;
-    }
-
-    private void sort() {
-        // TODO add more sorts
-        // alpha sort for now
-        Collections.sort(mFiles, new Comparator<File>() {
-            @Override
-            public int compare(File data1, File data2) {
-                return data1.compareTo(data2);
-            }
-        });
+    @Override
+    public void notifyDataSetInvalidated() {
+        mVFiles = null;
+        super.notifyDataSetInvalidated();
     }
 
     private boolean isVirtual( int aPosition ) {
-        if( mVirtuals == null ) return false ;
-        return mVirtuals.contains( getItem( aPosition ) ) ;
+        return false; // TODO
     }
 
 	@Override
     public int getCount() {
-		return mFiles.size();
-	}
-
-	public void add(File file) {
-		mFiles.add(file);
-		notifyDataSetChanged();
-	}
-
-	public void clear() {
-		mFiles.clear();
-		notifyDataSetChanged();
+		return mVFiles.size();
 	}
 
 	@Override
     public Object getItem(int position) {
-		return mFiles.get(position);
+		return mVFiles.get(position);
 	}
 
 	@Override
@@ -162,6 +116,10 @@ public class FileListAdapter extends BaseAdapter {
 
 		return row;
 	}
+
+    public void setVFS(VFS aVFS) {
+        this.mVFS = aVFS;
+    }
 
     static class ViewHolder {
 		TextView nameView;

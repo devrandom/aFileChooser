@@ -14,7 +14,5 @@ public interface VFS {
 
     void onActivityCreated(Context aContext, LoaderManager loaderManager, int startLoaderId, String aPath);
 
-    void setVirtualsFactory(VirtualsFactory virtualsFactory);
-
     List<VFile> getVFiles();
 }

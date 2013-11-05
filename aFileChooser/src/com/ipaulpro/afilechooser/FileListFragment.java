@@ -44,7 +44,6 @@ public class FileListFragment extends ListFragment {
 	private String mPath;
 	private boolean mFolderBrowser ;
     private VFS mVFS;
-    private VirtualsFactory mVirtualsFactory;
 
     /**
      * Create a new instance with the given file path.
@@ -53,14 +52,12 @@ public class FileListFragment extends ListFragment {
      * @return A new Fragment with the given file path.
      */
     public static FileListFragment newInstance(String path, boolean folderBrowser,
-                                               VirtualsFactory aVirtualsFactory,
                                                VFS aVFS) {
         FileListFragment fragment = new FileListFragment();
         Bundle args = new Bundle();
         args.putString(FileChooserActivity.PATH, path);
         args.putBoolean(FileChooserActivity.ARG_FOLDER_BROWSER, folderBrowser);
         fragment.setArguments(args);
-        fragment.setVirtualsFactory(aVirtualsFactory);
         fragment.setVFS(aVFS);
 
         return fragment;
@@ -107,8 +104,6 @@ public class FileListFragment extends ListFragment {
                 mAdapter.notifyDataSetInvalidated();
             }
         });
-        mVFS.setVirtualsFactory(mVirtualsFactory);
-
         mVFS.onActivityCreated(getActivity(), getLoaderManager(), VFS_LOADER_IDS, mPath);
 
         mAdapter.setVFS(mVFS);
@@ -124,10 +119,6 @@ public class FileListFragment extends ListFragment {
 			((FileChooserActivity) getActivity()).onFileSelected(file);
 		}
 	}
-
-    public void setVirtualsFactory(VirtualsFactory virtualsFactory) {
-        this.mVirtualsFactory = virtualsFactory;
-    }
 
     public void setVFS(VFS mVFS) {
         this.mVFS = mVFS;

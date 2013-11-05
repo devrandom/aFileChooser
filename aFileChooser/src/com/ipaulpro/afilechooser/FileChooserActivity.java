@@ -24,7 +24,6 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.net.Uri;
 import android.os.Bundle;
@@ -34,7 +33,6 @@ import android.support.v4.app.FragmentManager.BackStackEntry;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
 import android.widget.Toast;
 
 import com.ipaulpro.afilechooser.utils.FileUtils;
@@ -151,7 +149,7 @@ public class FileChooserActivity extends FragmentActivity implements
 	 * Add the initial Fragment with given path.
 	 */
 	private void addFragment() {
-		FileListFragment fragment = FileListFragment.newInstance(mPath, mFolderBrowser, getVirtualsFactory(), getVFS());
+		FileListFragment fragment = FileListFragment.newInstance(mPath, mFolderBrowser, getVFS());
 		mFragmentManager.beginTransaction()
 				.add(R.id.explorer_fragment, fragment).commit();
 	}
@@ -165,7 +163,7 @@ public class FileChooserActivity extends FragmentActivity implements
 	private void replaceFragment(File file) {
         mPath = file.getAbsolutePath();
 
-        FileListFragment fragment = FileListFragment.newInstance(mPath, mFolderBrowser, getVirtualsFactory(), getVFS());
+        FileListFragment fragment = FileListFragment.newInstance(mPath, mFolderBrowser, getVFS());
 		mFragmentManager.beginTransaction()
 				.replace(R.id.explorer_fragment, fragment)
 				.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
@@ -262,25 +260,6 @@ public class FileChooserActivity extends FragmentActivity implements
 		unregisterReceiver(mStorageListener);
 	}
 
-    public VirtualsFactory getVirtualsFactory() {
-        return new VirtualsFactory() {
-            @Override
-            public VFile createVirtual(Cursor aCursor) {
-                return null;
-            }
-
-            @Override
-            public List<VFile> createVirtualList(Cursor aCursor) {
-                return null;
-            }
-
-            @Override
-            public Loader<Cursor> getVirtualsCursorLoader(String mPath) {
-                return null;
-            }
-        };
-    }
-
     public VFS getVFS() {
         return new VFS() {
             @Override
@@ -292,10 +271,6 @@ public class FileChooserActivity extends FragmentActivity implements
             public void onActivityCreated(Context aContext, LoaderManager loaderManager, int startLoaderId, String aPath) {
                 // TODO
 
-            }
-
-            @Override
-            public void setVirtualsFactory(VirtualsFactory virtualsFactory) {
             }
 
             @Override

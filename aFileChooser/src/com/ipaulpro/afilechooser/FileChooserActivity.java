@@ -71,7 +71,6 @@ public class FileChooserActivity extends FragmentActivity implements
 
     private String mPath;
 	protected String mBasePath; // start browsing here
-    protected String mAppRootPath; // app root path - hide from title
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -81,9 +80,7 @@ public class FileChooserActivity extends FragmentActivity implements
 		if( ACTION_FOLDER_BROWSER.equals(action) ) {
 			mFolderBrowser = true ;
 		}
-        if( getIntent().getStringExtra(EXTRA_BASE_PATH) != null ) {
-            mBasePath = getIntent().getStringExtra(EXTRA_BASE_PATH);
-        }
+
         mPath = mBasePath ;
 
 		setContentView(R.layout.chooser);
@@ -103,9 +100,6 @@ public class FileChooserActivity extends FragmentActivity implements
 
     public void setPathTitle(String aPath ) {
         String title = aPath ;
-        if( aPath.startsWith(mAppRootPath)) {
-            title = aPath.substring( mAppRootPath.length()-1 );
-        }
         setTitle(title);
     }
 

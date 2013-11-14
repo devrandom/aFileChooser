@@ -72,6 +72,9 @@ public class FileListAdapter extends BaseAdapter {
 
 	@Override
     public int getCount() {
+        // FIXME when can this be called during an invalid dataset state?
+        if (mVFiles == null)
+            return 0;
 		return mVFiles.size();
 	}
 
